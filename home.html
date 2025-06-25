@@ -123,49 +123,71 @@
   </div>
 
   <script>
-    const API_KEY = "VENDOS_KETU_API_KEY"; // Zëvendësoje me çelësin tënd real
-    const CHANNEL_ID = "UCs25nWCMNGgbpD0HFF33bXA"; // ID për "The Smart Programmer"
+   // Zëvendëso këtë me API Key-in tënd të marrë nga Google Cloud Console
+    const API_KEY = "AIzaSyAniNb4iWY2n5mi2oZHSvbsarlgGaiS8R4"; // ← Vendose këtu çelësin tënd real
+    
+    // Channel ID për The Smart Programmer
+    const CHANNEL_ID = "UCs25nWCMNGgbpD0HFF33bXA";
     
     async function getChannelData() {
-      const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      document.getElementById('subscribers').innerText =
-        data.items[0].statistics.subscriberCount + " abonentë";
+      try {
+        const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+    
+        if (data.items && data.items.length > 0) {
+          document.getElementById('subscribers').innerText =
+            data.items[0].statistics.subscriberCount + " abonentë";
+        } else {
+          document.getElementById('subscribers').innerText =
+            "Nuk u gjetën të dhëna për abonentët.";
+        }
+      } catch (err) {
+        console.error("Gabim gjatë marrjes së abonentëve:", err);
+        document.getElementById('subscribers').innerText =
+          "Gabim gjatë marrjes së të dhënave.";
+      }
     }
     
     async function getVideos() {
-      const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=20`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const videos = data.items.filter(item => item.id.kind === "youtube#video");
+      try {
+        const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=20`;
+        const res = await fetch(url);
+        const data = await res.json();
     
-      const videoContainer = document.getElementById("videos");
-      const shortsContainer = document.getElementById("shorts");
+        const videos = data.items.filter(item => item.id.kind === "youtube#video");
     
-      videos.forEach(video => {
-        const isShort = video.snippet.title.toLowerCase().includes("shorts");
+        const videoContainer = document.getElementById("videos");
+        const shortsContainer = document.getElementById("shorts");
     
-        const div = document.createElement("div");
-        div.className = "video-item";
-        div.innerHTML = `
-          <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">
-            <img src="${video.snippet.thumbnails.medium.url}" alt="Thumbnail">
-            <p>${video.snippet.title}</p>
-          </a>
-        `;
+        videos.forEach(video => {
+          const isShort = video.snippet.title.toLowerCase().includes("shorts");
     
-        if (isShort) {
-          shortsContainer.appendChild(div);
-        } else {
-          videoContainer.appendChild(div);
-        }
-      });
+          const div = document.createElement("div");
+          div.className = "video-item";
+          div.innerHTML = `
+            <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">
+              <img src="${video.snippet.thumbnails.medium.url}" alt="Thumbnail">
+              <p>${video.snippet.title}</p>
+            </a>
+          `;
+    
+          if (isShort) {
+            shortsContainer.appendChild(div);
+          } else {
+            videoContainer.appendChild(div);
+          }
+        });
+      } catch (err) {
+        console.error("Gabim gjatë marrjes së videove:", err);
+      }
     }
     
+    // Nis marrjen e të dhënave sapo ngarkohet faqja
     getChannelData();
     getVideos();
-
+    
+    
 
   </script>
 </body>
