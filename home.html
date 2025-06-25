@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paneli - The Smart Programmer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    
+    h1, h2 {
+      color: #58a6ff;
+    }
+    
+    .card {
+      background: #161b22;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+    
+    .video-item {
+      background: #21262d;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    
+    .video-item img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+    }
+    
+    .footer a {
+      color: #58a6ff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    
+    .login-container {
+      max-width: 400px;
+      margin-top: 100px;
+      text-align: center;
+    }
+    
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #21262d;
+      color: white;
+    }
+    
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #238636;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    .error-message {
+      color: #ff4d4f;
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>The Smart Programmer - Paneli i YouTube</h1>
+    
+    <div class="card">
+      <h2>Abonentët:</h2>
+      <p id="subscribers">Duke u ngarkuar...</p>
+    </div>
+
+    <div class="card">
+      <h2>Videot e fundit:</h2>
+      <div id="videos" class="grid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Shorts-at:</h2>
+      <div id="shorts" class="grid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Postimet:</h2>
+      <p>(Nuk ofrohet nga API publik i YouTube për momentin)</p>
+    </div>
+
+    <div class="footer">
+      <a href="https://thsp591.wixsite.com/thsp" target="_blank">Shko tek faqja ime e web-it</a>
+    </div>
+  </div>
+
+  <script>
+    const API_KEY = "VENDOS_KETU_API_KEY"; // Zëvendësoje me çelësin tënd real
+    const CHANNEL_ID = "UCs25nWCMNGgbpD0HFF33bXA"; // ID për "The Smart Programmer"
+    
+    async function getChannelData() {
+      const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      document.getElementById('subscribers').innerText =
+        data.items[0].statistics.subscriberCount + " abonentë";
+    }
+    
+    async function getVideos() {
+      const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=20`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const videos = data.items.filter(item => item.id.kind === "youtube#video");
+    
+      const videoContainer = document.getElementById("videos");
+      const shortsContainer = document.getElementById("shorts");
+    
+      videos.forEach(video => {
+        const isShort = video.snippet.title.toLowerCase().includes("shorts");
+    
+        const div = document.createElement("div");
+        div.className = "video-item";
+        div.innerHTML = `
+          <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">
+            <img src="${video.snippet.thumbnails.medium.url}" alt="Thumbnail">
+            <p>${video.snippet.title}</p>
+          </a>
+        `;
+    
+        if (isShort) {
+          shortsContainer.appendChild(div);
+        } else {
+          videoContainer.appendChild(div);
+        }
+      });
+    }
+    
+    getChannelData();
+    getVideos();
+
+
+  </script>
+</body>
+</html>
