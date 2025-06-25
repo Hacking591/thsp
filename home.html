@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="sq">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Paneli - The Smart Programmer</title>
   <style>
     body {
@@ -12,16 +12,16 @@
       margin: 0;
       padding: 20px;
     }
-    
+
     .container {
-      max-width: 900px;
+      max-width: 600px;
       margin: auto;
     }
-    
+
     h1, h2 {
       color: #58a6ff;
     }
-    
+
     .card {
       background: #161b22;
       padding: 20px;
@@ -29,92 +29,50 @@
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
     }
-    
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 10px;
+
+    ul.video-titles {
+      list-style-type: none;
+      padding-left: 0;
     }
-    
-    .video-item {
+
+    ul.video-titles li {
       background: #21262d;
-      padding: 10px;
-      border-radius: 10px;
-      text-align: center;
-    }
-    
-    .video-item img {
-      width: 100%;
+      margin: 8px 0;
+      padding: 10px 15px;
       border-radius: 8px;
     }
-    
+
     .footer {
       text-align: center;
       margin-top: 30px;
     }
-    
+
     .footer a {
       color: #58a6ff;
       text-decoration: none;
       font-weight: bold;
     }
-    
-    .login-container {
-      max-width: 400px;
-      margin-top: 100px;
-      text-align: center;
-    }
-    
-    input[type="password"] {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      background-color: #21262d;
-      color: white;
-    }
-    
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      background-color: #238636;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    
-    .error-message {
-      color: #ff4d4f;
-      margin-top: 10px;
-    }
-
   </style>
 </head>
 <body>
   <div class="container">
     <h1>The Smart Programmer - Paneli i YouTube</h1>
-    
+
     <div class="card">
       <h2>Abonentët:</h2>
-      <p id="subscribers">Duke u ngarkuar...</p>
+      <p id="subscribers">66 abonentë</p>
     </div>
 
     <div class="card">
-      <h2>Videot e fundit:</h2>
-      <div id="videos" class="grid"></div>
+      <h2>Videot në total:</h2>
+      <p id="total-videos">31 video</p>
     </div>
 
     <div class="card">
-      <h2>Shorts-at:</h2>
-      <div id="shorts" class="grid"></div>
-    </div>
-
-    <div class="card">
-      <h2>Postimet:</h2>
-      <p>(Nuk ofrohet nga API publik i YouTube për momentin)</p>
+      <h2>Titujt e videove:</h2>
+      <ul id="video-titles" class="video-titles">
+        <!-- Titujt do shtohen me JS -->
+      </ul>
     </div>
 
     <div class="footer">
@@ -123,72 +81,23 @@
   </div>
 
   <script>
-   // Zëvendëso këtë me API Key-in tënd të marrë nga Google Cloud Console
-    const API_KEY = "AIzaSyAniNb4iWY2n5mi2oZHSvbsarlgGaiS8R4"; // ← Vendose këtu çelësin tënd real
-    
-    // Channel ID për The Smart Programmer
-    const CHANNEL_ID = "UCs25nWCMNGgbpD0HFF33bXA";
-    
-    async function getChannelData() {
-      try {
-        const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
-        const res = await fetch(url);
-        const data = await res.json();
-    
-        if (data.items && data.items.length > 0) {
-          document.getElementById('subscribers').innerText =
-            data.items[0].statistics.subscriberCount + " abonentë";
-        } else {
-          document.getElementById('subscribers').innerText =
-            "Nuk u gjetën të dhëna për abonentët.";
-        }
-      } catch (err) {
-        console.error("Gabim gjatë marrjes së abonentëve:", err);
-        document.getElementById('subscribers').innerText =
-          "Gabim gjatë marrjes së të dhënave.";
-      }
-    }
-    
-    async function getVideos() {
-      try {
-        const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=snippet,id&order=date&maxResults=20`;
-        const res = await fetch(url);
-        const data = await res.json();
-    
-        const videos = data.items.filter(item => item.id.kind === "youtube#video");
-    
-        const videoContainer = document.getElementById("videos");
-        const shortsContainer = document.getElementById("shorts");
-    
-        videos.forEach(video => {
-          const isShort = video.snippet.title.toLowerCase().includes("shorts");
-    
-          const div = document.createElement("div");
-          div.className = "video-item";
-          div.innerHTML = `
-            <a href="https://www.youtube.com/watch?v=${video.id.videoId}" target="_blank">
-              <img src="${video.snippet.thumbnails.medium.url}" alt="Thumbnail">
-              <p>${video.snippet.title}</p>
-            </a>
-          `;
-    
-          if (isShort) {
-            shortsContainer.appendChild(div);
-          } else {
-            videoContainer.appendChild(div);
-          }
-        });
-      } catch (err) {
-        console.error("Gabim gjatë marrjes së videove:", err);
-      }
-    }
-    
-    // Nis marrjen e të dhënave sapo ngarkohet faqja
-    getChannelData();
-    getVideos();
-    
-    
+    const videoTitles = [
+      "The Fastest way to Launch Your Free Website!",
+      "How to create a game and publish it on Logiscool?",
+      "How to get Microsoft365 for free?",
+      "How to hack a people with Beef in Kali Linux? (EDUCATION PURPOSES ONLY!)",
+      "How to find your Local and Global IP in Kali Linux?",
+      "How hackers can hack people using HOUND? (EDUCATION PURPOSES ONLY!)",
+      "Nje sekret i Google qe nuk e dini!"
+    ];
 
+    const ul = document.getElementById("video-titles");
+
+    videoTitles.forEach(title => {
+      const li = document.createElement("li");
+      li.textContent = title;
+      ul.appendChild(li);
+    });
   </script>
 </body>
 </html>
